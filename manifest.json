@@ -5,5 +5,6 @@
   "issue_tracker": "https://github.com/pestevez/my_heero/issues",
   "dependencies": [],
   "codeowners": ["@pestevez"],
-  "requirements": []
+  "requirements": ["eero>=0.0.2"],
+  "config_flow": true
 }
