@@ -1,7 +1,9 @@
 """Custom Eeero Integration"""
 import logging
 
-DOMAIN = "my_heero"
+from .const import (
+  DOMAIN,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
