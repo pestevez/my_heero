@@ -1,0 +1,9 @@
+{
+  "domain": "my_heero",
+  "name": "My Heero",
+  "documentation": "https://github.com/pestevez/my_heero",
+  "issue_tracker": "https://github.com/pestevez/my_heero/issues",
+  "dependencies": [],
+  "codeowners": ["pestevez"],
+  "requirements": []
+}
