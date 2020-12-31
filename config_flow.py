@@ -23,10 +23,6 @@ class MyHeeroConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
   CONNECTION_CLASS = config_entries.CONN_CLASS_CLOUD_POLL
 
-  def __init__(self):
-    """Initialize the config flow."""
-    self.eero = None
-
   async def async_step_user(self, info):
     if info is not None:
       #  TODO: Validate  user input
@@ -35,8 +31,8 @@ class MyHeeroConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
       # Get user input value to populate cookie
       cookie = CookieStore(user_token)
       # Get Eero client using cookie
-      self.eero = eero.Eero(cookie)
-      account = self.eero.account()
+      eero = eero.Eero(cookie)
+      account = eero.account()
 
       # TODO: Validate fields
 
@@ -48,7 +44,7 @@ class MyHeeroConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
       if (networks is not None and networks["count"] > 0):
         # We'll only process the first network
         first_network = networks["data"][0]
-        first_network_id = self.eero.id_from_url(first_network["url"])
+        first_network_id = eero.id_from_url(first_network["url"])
 
         return self.async_create_entry(
           # The value that will be showin in the UI
