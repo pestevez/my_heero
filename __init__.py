@@ -1,4 +1,5 @@
 """Custom Eeero Integration"""
+import asyncio
 import eero
 import logging
 
@@ -13,7 +14,7 @@ from .cookie import (
 
 # List of platforms to support. There should be a matching .py file for each,
 # eg <sensor.py>
-PLATFORMS = ["sensor"]
+PLATFORMS = ["binary_sensor"]
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -23,7 +24,7 @@ async def async_setup(hass, config):
   return True
 
 async def async_setup_entry(hass, entry):
-  user_token = entry[CONF_USER_TOKEN]
+  user_token = entry.data[CONF_USER_TOKEN]
 
   # Get user input value to populate cookie
   cookie = CookieStore(user_token)
@@ -41,7 +42,7 @@ async def async_setup_entry(hass, entry):
 
   return True
 
-async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
+async def async_unload_entry(hass, entry):
   """Unload a config entry."""
   # This is called when an entry/configured device is to be removed. The class
   # needs to unload itself, and remove callbacks. See the classes for further
