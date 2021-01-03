@@ -31,8 +31,8 @@ class MyHeeroConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
       # Get user input value to populate cookie
       cookie = CookieStore(user_token)
       # Get Eero client using cookie
-      eero = eero.Eero(cookie)
-      account = eero.account()
+      _eero = eero.Eero(cookie)
+      account = _eero.account()
 
       # TODO: Validate fields
 
@@ -44,7 +44,7 @@ class MyHeeroConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
       if (networks is not None and networks["count"] > 0):
         # We'll only process the first network
         first_network = networks["data"][0]
-        first_network_id = eero.id_from_url(first_network["url"])
+        first_network_id = _eero.id_from_url(first_network["url"])
 
         return self.async_create_entry(
           # The value that will be showin in the UI
