@@ -5,12 +5,20 @@ import logging
 
 from .const import (
   CONF_USER_TOKEN,
+  DATA_COORDINATOR_KEY,
   DOMAIN,
 )
 
 from .cookie import (
   CookieStore,
 )
+
+from homeassistant.helpers.update_coordinator import (
+    DataUpdateCoordinator,
+    UpdateFailed,
+)
+
+DEFAULT_UPDATE_INTERVAL = 30
 
 # List of platforms to support. There should be a matching .py file for each,
 # eg <sensor.py>
@@ -19,19 +27,37 @@ PLATFORMS = ["binary_sensor"]
 _LOGGER = logging.getLogger(__name__)
 
 async def async_setup(hass, config):
-  hass.data.setdefault(DOMAIN, {})
+  hass.data.setdefault(DOMAIN, {DATA_COORDINATOR_KEY: {}})
 
   return True
 
 async def async_setup_entry(hass, entry):
+  # Get values stored in config entry
   user_token = entry.data[CONF_USER_TOKEN]
+  network_id = config_entry.data[CONF_NETWORK_ID]
 
   # Get user input value to populate cookie
   cookie = CookieStore(user_token)
   # Get Eero client using cookie
-  _eero = eero.Eero(cookie)
+  client = eero.Eero(cookie)
 
-  hass.data[DOMAIN][entry.entry_id] = _eero
+  hass.data[DOMAIN][entry.entry_id] = client
+
+  async def async_update_data():
+    _LOGGER.debug("Getting eeros...")
+    return client.eeros()
+
+  coordinator = DataUpdateCoordinator(
+    hass,
+    _LOGGER,
+    name=DOMAIN,
+    update_interval=DEFAULT_UPDATE_INTERVAL,
+    update_method=async_update_data,
+  )
+
+  await coordinator.async_refresh()
+
+  hass.data[DOMAIN][DATA_COORDINATOR_KEY][config_entry.entry_id] = coordinator
 
   # This creates each HA object for each platform your device requires.
   # It's done by calling the `async_setup_entry` function in each platform module.
