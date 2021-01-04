@@ -1,6 +1,7 @@
 """Platform for sensor integration."""
 import eero
 import logging
+import re
 
 from .const import (
   CONF_NETWORK_ID,
@@ -23,9 +24,9 @@ _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass, config_entry, async_add_devices):
   """Add a binary sensor for each passed config_entry in HA."""
-  coordinator = hass.data[DOMAIN][DATA_COORDINATOR_KEY]
+  coordinator = hass.data[DOMAIN][DATA_COORDINATOR_KEY][config_entry.entry_id]
 
-  eero_infos = coordinator.data.items()
+  eero_infos = coordinator.data
 
   new_devices = []
   for eero_info in eero_infos:
@@ -44,7 +45,7 @@ class EeroConnectivityBinarySensor(CoordinatorEntity, BinarySensorEntity):
     """Initialize the sensor."""
     super().__init__(coordinator)
     self._eero_info = eero_info
-    self._eero_id = eero.id_from_url(eero_info[FIELD_URL])
+    self._eero_id = EeroConnectivityBinarySensor._id_from_url(eero_info[FIELD_URL])
 
   # Supports connecting the entity with the correct device
   @property
@@ -79,3 +80,12 @@ class EeroConnectivityBinarySensor(CoordinatorEntity, BinarySensorEntity):
   def name(self):
     """Return the name of the entity."""
     return self._eero_info["location"] + f' {MANUFACTURER} Connectivity'
+
+  @staticmethod
+  def _id_from_url(id_or_url):
+    match = re.search('^[0-9]+$', id_or_url)
+    if match:
+      return match.group(0)
+    match = re.search(r'\/([0-9]+)$', id_or_url)
+    if match:
+      return match.group(1)
